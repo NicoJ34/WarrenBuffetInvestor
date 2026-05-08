@@ -123,6 +123,19 @@ class Fundamental(Base):
     __table_args__ = (UniqueConstraint("ticker", "report_date"), {"extend_existing": True})
 
 
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+
+    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    token = Column(String(255), unique=True, nullable=False, index=True)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    used = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User")
+
+
 class BuffettScore(Base):
     __tablename__ = "buffett_scores"
     __table_args__ = (UniqueConstraint("ticker", "score_date"),)

@@ -251,3 +251,4 @@ Le choix de proposer plusieurs répartitions alternatives plutôt qu'une seule e
 La double contrainte de diversification (sectorielle + par ligne) est saine, mais surveille la pondération avec le score Buffett : un bon score peut entrer en conflit avec une contrainte de diversification, et il faut décider qui gagne. À documenter dans la phase de conception.
 
 Le point qui mérite probablement le plus d'attention en V2 : la **valeur intrinsèque**. C'est le cœur de l'approche Buffett et c'est aussi le plus difficile à automatiser proprement. Un DCF simplifié paramétrable est un bon compromis V1, mais prévois une itération.
+****

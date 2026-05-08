@@ -67,8 +67,11 @@ export default function ProfilePage() {
       await api.put("/profile", data)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
-    } catch {
-      setError("Erreur lors de la mise à jour du profil")
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        "Erreur lors de la mise à jour du profil"
+      setError(msg)
     } finally {
       setLoading(false)
     }

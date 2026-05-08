@@ -4,7 +4,6 @@ from sqlalchemy import (
     BigInteger, Boolean, Column, Date, DateTime, Float,
     ForeignKey, Integer, JSON, Numeric, String, Text, UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.sql import func
 
@@ -18,7 +17,7 @@ def _uuid():
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
+    id = Column(String(36), primary_key=True, default=_uuid)
     email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=True)  # None for SSO-only users
     name = Column(String(255), nullable=False)
@@ -33,8 +32,8 @@ class User(Base):
 class UserProfile(Base):
     __tablename__ = "user_profiles"
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
-    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
+    id = Column(String(36), primary_key=True, default=_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False)
     # Circles of competence: list of sector strings
     competence_circles = Column(JSON, nullable=False, default=list)
     # Concentration thresholds (percentages, 0-100)
@@ -63,8 +62,8 @@ class Instrument(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
-    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     ticker = Column(String(20), ForeignKey("instruments.ticker"), nullable=False, index=True)
     transaction_type = Column(String(10), nullable=False)  # buy | sell
     quantity = Column(Numeric(18, 6), nullable=False)
@@ -126,8 +125,8 @@ class Fundamental(Base):
 class PasswordResetToken(Base):
     __tablename__ = "password_reset_tokens"
 
-    id = Column(UUID(as_uuid=False), primary_key=True, default=_uuid)
-    user_id = Column(UUID(as_uuid=False), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=_uuid)
+    user_id = Column(String(36), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     token = Column(String(255), unique=True, nullable=False, index=True)
     expires_at = Column(DateTime(timezone=True), nullable=False)
     used = Column(Boolean, default=False, nullable=False)

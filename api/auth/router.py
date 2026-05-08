@@ -55,19 +55,26 @@ def register(body: RegisterRequest):
         session.add(user)
         session.flush()
         _create_default_profile(session, user.id)
+        user_id = user.id
 
-    return _make_tokens(user.id)
+    return _make_tokens(user_id)
 
 
 @router.post("/login", response_model=TokenResponse)
 def login(body: LoginRequest):
     with get_db() as session:
         user = session.execute(select(User).where(User.email == body.email)).scalar_one_or_none()
+        if user:
+            user_id = user.id
+            password_hash = user.password_hash
+        else:
+            user_id = None
+            password_hash = None
 
-    if not user or not user.password_hash or not verify_password(body.password, user.password_hash):
+    if not user_id or not password_hash or not verify_password(body.password, password_hash):
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
 
-    return _make_tokens(user.id)
+    return _make_tokens(user_id)
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -142,8 +149,9 @@ def google_signin(body: dict):
                 session.add(user)
                 session.flush()
                 _create_default_profile(session, user.id)
+        user_id = user.id
 
-    return _make_tokens(user.id)
+    return _make_tokens(user_id)
 
 
 @router.get("/me", response_model=UserResponse)

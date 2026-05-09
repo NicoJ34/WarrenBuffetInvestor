@@ -391,8 +391,18 @@ Dashboard complet, fonctionnel, responsive mobile. MVP prêt.
 
 ## Points de risque & décisions à anticiper
 
-### Risque 1 — Qualité des données yfinance
-`yfinance` est un scraper non officiel, instable pour les fondamentaux (ROIC, FCF historique). **Plan B :** basculer sur Financial Modeling Prep (FMP) à ~$15/mois si les données sont insuffisantes. La couche abstraite `MarketDataProvider` facilite ce swap sans réécriture.
+### Risque 1 — Qualité et disponibilité des données yfinance ⚠️ À REVOIR
+`yfinance` est un scraper non officiel, instable pour les fondamentaux (ROIC, FCF historique). En pratique, les appels à l'API Yahoo Finance sont fréquemment bloqués par du rate-limiting (réponse vide, erreur 429), même pour des tickers courants comme MSFT. Constaté en Phase 2 : les cours ne s'affichent pas lors des tests locaux intensifs.
+
+**Mesures déjà en place :**
+- Système de cache DB (`market_prices`, `fx_rates`) pour éviter les appels répétés
+- Timeout de 8s par appel avec fallback sur le cache
+- Affichage N/D en cas d'indisponibilité (ne bloque pas l'interface)
+
+**À revoir avant la mise en production :**
+- Évaluer Financial Modeling Prep (FMP) à ~$15/mois comme remplacement principal
+- Ou utiliser l'API officielle Yahoo Finance (RapidAPI) avec quota garanti
+- La couche abstraite `MarketDataProvider` est prête pour ce swap sans réécriture
 
 ### Risque 2 — DCF avec données manquantes
 Certaines entreprises n'ont pas de FCF positif ou d'historique suffisant. **Règle :** si FCF manquant ou négatif sur >3 ans, le critère FCF = 0/100 et le score global est signalé "données insuffisantes".

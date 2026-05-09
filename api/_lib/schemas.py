@@ -146,13 +146,13 @@ class PositionResponse(BaseModel):
     country: Optional[str]
     currency: str
     quantity: Decimal
-    average_cost: Decimal           # PRU en devise native
-    current_price: Decimal          # Cours J-1 en devise native
-    current_value_eur: Decimal      # Valeur actuelle en EUR
-    cost_basis_eur: Decimal         # Coût total en EUR
-    unrealized_pnl_eur: Decimal     # P&L latent en EUR
-    unrealized_pnl_pct: float       # P&L latent en %
-    portfolio_weight: float         # % du portefeuille total
+    average_cost: Decimal
+    current_price: Optional[Decimal]      # None si cours indisponible
+    current_value_eur: Optional[Decimal]
+    cost_basis_eur: Decimal
+    unrealized_pnl_eur: Optional[Decimal]
+    unrealized_pnl_pct: Optional[float]
+    portfolio_weight: float
     buffett_score: Optional[float]
     recommendation: Optional[str]
 

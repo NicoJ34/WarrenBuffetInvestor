@@ -74,23 +74,52 @@ class YFinanceProvider(MarketDataProvider):
             return None
 
     def get_instrument_info(self, ticker: str) -> Optional[InstrumentInfo]:
+        upper = ticker.upper()
+        t = yf.Ticker(upper)
+
+        # fast_info is lightweight and avoids 429s from the heavy /quoteSummary endpoint
         try:
-            info = yf.Ticker(ticker).info
-            if not info or "symbol" not in info:
+            fi = t.fast_info
+            currency = getattr(fi, "currency", None) or "USD"
+            exchange = getattr(fi, "exchange", None) or ""
+        except Exception:
+            currency = "USD"
+            exchange = ""
+
+        # Confirm ticker is real by checking recent price data
+        try:
+            hist = t.history(period="5d")
+            if hist.empty:
                 return None
-            quote_type = info.get("quoteType", "EQUITY").lower()
-            instrument_type = "etf" if quote_type == "etf" else "stock"
-            return InstrumentInfo(
-                ticker=ticker.upper(),
-                name=info.get("longName") or info.get("shortName", ticker),
-                sector=info.get("sector"),
-                country=info.get("country"),
-                currency=info.get("currency", "USD"),
-                exchange=info.get("exchange", ""),
-                instrument_type=instrument_type,
-            )
         except Exception:
             return None
+
+        # Try to enrich with full info (may fail due to rate limiting — non-blocking)
+        name = upper
+        sector = None
+        country = None
+        instrument_type = "stock"
+        try:
+            info = t.info
+            name = info.get("longName") or info.get("shortName") or upper
+            sector = info.get("sector")
+            country = info.get("country")
+            qt = info.get("quoteType", "EQUITY").lower()
+            instrument_type = "etf" if qt == "etf" else "stock"
+            currency = info.get("currency", currency)
+            exchange = info.get("exchange", exchange)
+        except Exception:
+            pass
+
+        return InstrumentInfo(
+            ticker=upper,
+            name=name,
+            sector=sector,
+            country=country,
+            currency=currency,
+            exchange=exchange,
+            instrument_type=instrument_type,
+        )
 
     def get_fx_rate(self, from_currency: str, to_currency: str) -> Optional[FxRateData]:
         if from_currency == to_currency:

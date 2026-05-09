@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # Cron secret (pour sécuriser les endpoints /cron/*)
     cron_secret: str = os.getenv("CRON_SECRET", "change-me-in-production")
 
+    # Données de marché
+    twelve_data_api_key: str = os.getenv("TWELVE_DATA_API_KEY", "")
+
     class Config:
         env_file = ".env"
         case_sensitive = False

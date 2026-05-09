@@ -18,6 +18,7 @@ pydantic-settings==2.6.1
 
 # Market data
 yfinance==0.2.49
+twelvedata==1.4.0
 requests==2.32.3
 
 # Scheduling (dev local)
